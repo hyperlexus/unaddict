@@ -3,17 +3,10 @@ let elapsedTime = 8869420;
 let timerInterval;
 let datestart = new Date(Date.now() - elapsedTime);
 
-function calcStarted(time) {
-    return datestart.toLocaleString('sv-SE');
-}
+
 function setStarted() {
-    document.addEventListener('DOMContentLoaded', (event) => {
-        // Example: Change the text dynamically
-        document.getElementById('starttime').innerHTML = calcStarted(elapsedTime);
-    })
+    document.getElementById('starttime').innerHTML = datestart.toLocaleString('sv-SE');
 }
-setStarted();
-console.log(calcStarted(elapsedTime))
 
 // update the timer display
 function timeToString(time) {
@@ -56,11 +49,12 @@ function startTimer() {
 
 // reset
 document.getElementById("resetButton").addEventListener("click", function() {
-    clearInterval(timerInterval);
-    localStorage.setItem("elapsedTime", 0);
-    document.getElementById("timer").innerHTML = "00:00:00";
+    document.getElementById("timer").innerHTML = "Resetting timer...";
     elapsedTime = 0;
     startTimer();
+    document.getElementById("starttime").innerHTML = "Resetting...";
+    setStarted();
 });
 
 startTimer();
+setStarted();
