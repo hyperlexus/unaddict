@@ -8,7 +8,7 @@ function setStarted() {
     document.getElementById('starttime').innerHTML = datestart.toLocaleString('sv-SE');
 }
 
-// update the timer display
+// format timer
 function timeToString(time) {
     let dY = time / 31536000000;
     let y = Math.floor(dY);
@@ -53,6 +53,7 @@ document.getElementById("resetButton").addEventListener("click", function() {
     elapsedTime = 0;
     startTimer();
     document.getElementById("starttime").innerHTML = "Resetting...";
+    datestart = new Date(Date.now()).toLocaleString('sv-SE');
     setStarted();
 });
 
