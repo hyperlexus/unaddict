@@ -3,7 +3,7 @@ let elapsedTime = 8869420;
 let timerInterval;
 let datestart = new Date(Date.now() - elapsedTime);
 
-
+//set started time: "You started at: yyyy-MM-dd hh:mm:ss"
 function setStarted() {
     document.getElementById('starttime').innerHTML = datestart.toLocaleString('sv-SE');
 }
@@ -57,5 +57,6 @@ document.getElementById("resetButton").addEventListener("click", function() {
     setStarted();
 });
 
+// execute
 startTimer();
 setStarted();
