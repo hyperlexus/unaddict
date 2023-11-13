@@ -1,43 +1,56 @@
 let startTime;
-let elapsedTime = 0;
+let elapsedTime = 8869420;
 let timerInterval;
 
-// Load saved time
-window.onload = function() {
-    if(localStorage.getItem("elapsedTime")){
-        elapsedTime = parseInt(localStorage.getItem("elapsedTime"));
-        startTimer();
-    }
-};
+function youStarted(time) {
+    document.addEventListener('DOMContentLoaded', (event) => {
+        // Example: Change the text dynamically
+        document.getElementById('starttime').textContent = 'nigger';
+    })
+}
+youStarted(elapsedTime);
 
-// Update the timer display
+// update the timer display
 function timeToString(time) {
-    let diffInHrs = time / 3600000;
-    let hh = Math.floor(diffInHrs);
+    let dY = time / 31536000000;
+    let y = Math.floor(dY);
 
-    let diffInMin = (diffInHrs - hh) * 60;
-    let mm = Math.floor(diffInMin);
+    let dW = (dY - y) * 52;
+    let w = Math.floor(dW);
 
-    let diffInSec = (diffInMin - mm) * 60;
-    let ss = Math.floor(diffInSec);
+    let dD = (dW - w) * 7;
+    let d = Math.floor(dD);
 
-    let formattedHH = hh.toString().padStart(2, "0");
-    let formattedMM = mm.toString().padStart(2, "0");
-    let formattedSS = ss.toString().padStart(2, "0");
+    let dH = (dD - d) * 24;
+    let h = Math.floor(dH);
 
-    return `${formattedHH}:${formattedMM}:${formattedSS}`;
+    let dM = (dH - h) * 60;
+    let m = Math.floor(dM);
+
+    let dS = (dM - m) * 60;
+    let s = Math.floor(dS);
+
+    let fY = y.toString().padStart(4, "0");
+    let fW = w.toString().padStart(2, "0");
+    let fD = d.toString().padStart(1, "0");
+    let fH = h.toString().padStart(2, "0");
+    let fM = m.toString().padStart(2, "0");
+    let fS = s.toString().padStart(2, "0");
+
+    return `${fY}:${fW}:${fD}:${fH}:${fM}:${fS}`;
 }
 
-// Start the timer
+// start
 function startTimer() {
     startTime = Date.now() - elapsedTime;
     timerInterval = setInterval(function printTime() {
         elapsedTime = Date.now() - startTime;
         document.getElementById("timer").innerHTML = timeToString(elapsedTime);
+        console.log(elapsedTime)
     }, 1000);
 }
 
-// Reset the timer
+// reset
 document.getElementById("resetButton").addEventListener("click", function() {
     clearInterval(timerInterval);
     localStorage.setItem("elapsedTime", 0);
