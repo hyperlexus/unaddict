@@ -4,7 +4,7 @@ let elapsedTime = 0; // wtf javascript, why
 
 
 // helper to calculate the elapsed time since the JSON Date in ms
-function calcElapsedTime(startTime) {
+function calcElapsedTime() {
     return Date.now() - new Date(startTime).getTime();
 }
 
@@ -52,58 +52,63 @@ function setStarted() {
 }
 
 // start
-function startTimer(elapsedTime) {
+function startTimer() {
     clearInterval(timerInterval);
     timerInterval = setInterval(function printTime() {
         elapsedTime = calcElapsedTime(startTime);
         document.getElementById("timer").innerHTML = timeToString(elapsedTime);
     }, 1000);
-    startTime = Date.now() - elapsedTime;
 }
 
 // fetch elapsed time using API endpoint from server.js line 9
+// and initialise everything at the same time because why not lol
 function fetchElapsedTime() {
-    fetch('/get-start-time', {
-        headers: {
-            'Cache-Control': 'no-cache'
-        }
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data && data.startTime) {
-                startTime = new Date(data.startTime).getTime();
-                let elapsedTime = calcElapsedTime(startTime);
-                console.log(elapsedTime);
-                return elapsedTime;
-                // setStarted();
-            } else {
-                console.error('Start time not found in response');
+    return new Promise((resolve, reject) => {
+        fetch('/get-start-time', {
+            headers: {
+                'Cache-Control': 'no-cache'
             }
         })
-        .catch(error => {
-            console.error('Error:', error)
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.startTime) {
+                    startTime = new Date(data.startTime).getTime();
+                    let elapsedTime = calcElapsedTime();
+                    console.log(elapsedTime);
+                    setStarted();
+                    startTimer();
+                    resolve(); // Resolve the promise after all operations are complete
+                } else {
+                    console.error('Start time not found in response');
+                    reject('Start time not found'); // Reject the promise if data is not found
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                reject(error); // Reject the promise on error
+            });
+    });
 }
 
-
-
-// fetch elapsed time from timeData.txt on page load
+// do nothing, but wait until the fetch elapsed time is done
+// idk how this works but it does. this was coded at 2am
 document.addEventListener('DOMContentLoaded', function() {
-    fetchElapsedTime();
-    setStarted(elapsedTime);
-    startTimer(elapsedTime);
+    fetchElapsedTime().then(() => {
+        // literally wait, nice
+    }).catch(error => {
+        console.error('init error:', error);
+    });
 });
 
-startTimer(elapsedTime);
 
-// reset
+// reset functionality
 document.getElementById("resetButton").addEventListener("click", function() {
     let currentTime = new Date().toISOString(); // Get current time as ISO string
 
     fetch('/save-start-time', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ startTime: currentTime }) // Send current time as startTime
+        body: JSON.stringify({ startTime: currentTime }) // save current time as "startTime" key in the json
     })
         .then(response => response.text())
         .then(result => {
