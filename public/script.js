@@ -3,47 +3,10 @@ let timerInterval;
 let elapsedTime = 0; // wtf javascript, why
 
 
-// does sth
+// helper to calculate the elapsed time since the JSON Date in ms
 function calcElapsedTime(startTime) {
     return Date.now() - new Date(startTime).getTime();
 }
-
-//set "You started at" time
-function setStarted() {
-    let datestart = new Date(Date.now() - elapsedTime);
-    document.getElementById('starttime').innerHTML = datestart.toLocaleString('sv-SE');
-}
-
-// fetch elapsed time using API endpoint from server.js line 9
-function fetchElapsedTime() {
-    fetch('/get-start-time', {
-        headers: {
-            'Cache-Control': 'no-cache'
-        }
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data && data.startTime) {
-                startTime = new Date(data.startTime).getTime();
-                let elapsedTime = calcElapsedTime(startTime);
-                console.log(elapsedTime);
-                return elapsedTime;
-                // setStarted();
-            } else {
-                console.error('Start time not found in response');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error)
-        });
-}
-
-
-document.addEventListener('DOMContentLoaded', function() {
-    fetchElapsedTime();
-    setStarted(elapsedTime);
-});
-
 
 // helper to get date of (now - elapsedTime)
 function getPastDate(millisecondsDiff) {
@@ -51,9 +14,10 @@ function getPastDate(millisecondsDiff) {
     let pastDate = new Date(currentTime - millisecondsDiff);
     return pastDate;
 }
+
 // helper to format timer
 function timeToString(time) {
-    let dY = time / 31536000000;
+    let dY = time / 31449600000;
     let y = Math.floor(dY);
 
     let dW = (dY - y) * 52;
@@ -81,15 +45,54 @@ function timeToString(time) {
     return `${fY}:${fW}:${fD}:${fH}:${fM}:${fS}`;
 }
 
+// set "You started at" time
+function setStarted() {
+    let datestart = new Date(startTime);
+    document.getElementById('starttime').innerHTML = datestart.toLocaleString('sv-SE');
+}
+
 // start
 function startTimer(elapsedTime) {
     clearInterval(timerInterval);
-    startTime = Date.now() - elapsedTime;
     timerInterval = setInterval(function printTime() {
         elapsedTime = calcElapsedTime(startTime);
         document.getElementById("timer").innerHTML = timeToString(elapsedTime);
     }, 1000);
+    startTime = Date.now() - elapsedTime;
 }
+
+// fetch elapsed time using API endpoint from server.js line 9
+function fetchElapsedTime() {
+    fetch('/get-start-time', {
+        headers: {
+            'Cache-Control': 'no-cache'
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.startTime) {
+                startTime = new Date(data.startTime).getTime();
+                let elapsedTime = calcElapsedTime(startTime);
+                console.log(elapsedTime);
+                return elapsedTime;
+                // setStarted();
+            } else {
+                console.error('Start time not found in response');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error)
+        });
+}
+
+
+
+// fetch elapsed time from timeData.txt on page load
+document.addEventListener('DOMContentLoaded', function() {
+    fetchElapsedTime();
+    setStarted(elapsedTime);
+    startTimer(elapsedTime);
+});
 
 startTimer(elapsedTime);
 
@@ -114,8 +117,3 @@ document.getElementById("resetButton").addEventListener("click", function() {
 
     document.getElementById("timer").innerHTML = "Resetting timer...";
 });
-
-
-// execute
-document.addEventListener('DOMContentLoaded', startTimer(elapsedTime));
-// document.addEventListener('DOMContentLoaded', setStarted(elapsedTime));
