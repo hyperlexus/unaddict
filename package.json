@@ -1,0 +1,23 @@
+{
+  "name": "unaddict",
+  "version": "1.1.0",
+  "description": "addiction helper",
+  "main": "public/script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hyperlexus/unaddict.git"
+  },
+  "author": "hyperlexus",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/hyperlexus/unaddict/issues"
+  },
+  "homepage": "https://github.com/hyperlexus/unaddict#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "fs": "^0.0.1-security"
+  }
+}
