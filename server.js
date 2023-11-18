@@ -25,7 +25,12 @@ app.get('/get-start-time', (req, res) => {
 // Endpoint to save the start time
 app.post('/save-start-time', (req, res) => {
     const startTime = req.body.startTime;
-    fs.writeFile('timeData.txt', startTime, 'utf8', err => {
+    if (!startTime) {
+        res.status(400).send('No start time provided');
+        return;
+    }
+
+    fs.writeFile('timeData.txt', JSON.stringify({ startTime: startTime }), 'utf8', err => {
         if (err) {
             res.status(500).send('Error writing file');
             return;
@@ -34,4 +39,5 @@ app.post('/save-start-time', (req, res) => {
     });
 });
 
-app.listen(3000, () => console.log('Server running on port 3000'));
+
+app.listen(3000, () => console.log('running on port 3000'));

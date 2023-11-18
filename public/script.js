@@ -4,8 +4,14 @@ let elapsedTime = 0; // wtf javascript, why
 
 
 // does sth
-function calcElapsedTime() {
+function calcElapsedTime(startTime) {
     return Date.now() - new Date(startTime).getTime();
+}
+
+//set "You started at" time
+function setStarted() {
+    let datestart = new Date(Date.now() - elapsedTime);
+    document.getElementById('starttime').innerHTML = datestart.toLocaleString('sv-SE');
 }
 
 // fetch elapsed time using API endpoint from server.js line 9
@@ -20,7 +26,9 @@ function fetchElapsedTime() {
             if (data && data.startTime) {
                 startTime = new Date(data.startTime).getTime();
                 let elapsedTime = calcElapsedTime(startTime);
+                console.log(elapsedTime);
                 return elapsedTime;
+                // setStarted();
             } else {
                 console.error('Start time not found in response');
             }
@@ -29,21 +37,21 @@ function fetchElapsedTime() {
             console.error('Error:', error)
         });
 }
-elapsedTime = fetchElapsedTime();
 
-//set "You started at" time
-function setStarted() {
-    let datestart = new Date(Date.now() - elapsedTime);
-    document.getElementById('starttime').innerHTML = datestart.toLocaleString('sv-SE');
-}
 
-// helper to get now - elapsedTime
+document.addEventListener('DOMContentLoaded', function() {
+    fetchElapsedTime();
+    setStarted(elapsedTime);
+});
+
+
+// helper to get date of (now - elapsedTime)
 function getPastDate(millisecondsDiff) {
     let currentTime = Date.now();
     let pastDate = new Date(currentTime - millisecondsDiff);
     return pastDate;
 }
-// format timer
+// helper to format timer
 function timeToString(time) {
     let dY = time / 31536000000;
     let y = Math.floor(dY);
@@ -87,22 +95,27 @@ startTimer(elapsedTime);
 
 // reset
 document.getElementById("resetButton").addEventListener("click", function() {
-    document.getElementById("timer").innerHTML = "Resetting timer...";
+    let currentTime = new Date().toISOString(); // Get current time as ISO string
 
-    elapsedTime = 0;
-    startTimer();
-    document.getElementById("starttime").innerHTML = "Resetting...";
-    datestart = new Date(Date.now()).toLocaleString('sv-SE');
-    setStarted();
-    console.log(getPastDate(elapsedTime))
-    // save new time to server
     fetch('/save-start-time', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ elapsedTime:  getPastDate(elapsedTime)})
-    });
+        body: JSON.stringify({ startTime: currentTime }) // Send current time as startTime
+    })
+        .then(response => response.text())
+        .then(result => {
+            console.log(result);
+            startTime = new Date(currentTime).getTime(); // Update startTime
+            elapsedTime = 0; // Reset elapsedTime
+            startTimer(elapsedTime); // Restart the timer
+            document.getElementById("starttime").innerHTML = new Date(currentTime).toLocaleString('sv-SE');
+        })
+        .catch(error => console.error('Error:', error));
+
+    document.getElementById("timer").innerHTML = "Resetting timer...";
 });
+
 
 // execute
 document.addEventListener('DOMContentLoaded', startTimer(elapsedTime));
-document.addEventListener('DOMContentLoaded', setStarted);
+// document.addEventListener('DOMContentLoaded', setStarted(elapsedTime));
